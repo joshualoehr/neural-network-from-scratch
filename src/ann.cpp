@@ -1,5 +1,7 @@
 #include "proto.hpp"
 
+MatrixXf FeedForward(MatrixXf inputs, MatrixXf weights, VectorXf bias);
+
 struct DataSets
 {
     int input_count;
@@ -11,11 +13,32 @@ struct DataSets
 
 int main()
 {
-    // MatrixXi csv_contents = ParseInputCSV("mushrooms.csv");
-    MatrixXf m = MatrixXf::Random(5,5) + MatrixXf::Constant(5,5,1.0f);
-    cout << m << endl;
-    cout << Sigmoid(m) << endl;
+    // MatrixXf csv_contents = ParseInputCSV(INPUT_FILENAME_SMALL);
+    // cout << csv_contents << endl;
+    // cout << endl << endl;
+
+    MatrixXf m(2,1);
+    m(0,0) = 1;
+    m(1,0) = 0;
+    cout << "inputs: " << endl << m << endl << endl;
+
+    MatrixXf weights(2,1);
+    weights(0,0) = 20;
+    weights(1,0) = 20;
+    cout << "weights: " << endl << weights << endl << endl;
+
+    VectorXf bias = VectorXf::Constant(m.cols(), -10);
+    cout << "bias: " << endl << bias << endl << endl;
+
+    MatrixXf ff1 = FeedForward(m, weights, bias);
+    cout << ff1.rows() << "x" << ff1.cols() << endl;
+    cout << ff1 << endl;
     return 0;
+}
+
+MatrixXf FeedForward(MatrixXf inputs, MatrixXf weights, VectorXf bias)
+{
+    return Sigmoid(weights.transpose() * inputs + bias);
 }
 
 MatrixXf Sigmoid(MatrixXf X)
@@ -24,7 +47,7 @@ MatrixXf Sigmoid(MatrixXf X)
     return ((X * -1).array().exp().matrix() + ones).cwiseInverse();
 }
 
-VectorXi OutputToClass(MatrixXi output_vectors)
+VectorXi OutputToClass(MatrixXf output_vectors)
 {
     int num_rows = output_vectors.rows();
     int num_cols = output_vectors.cols();
@@ -43,15 +66,15 @@ VectorXi OutputToClass(MatrixXi output_vectors)
     return class_vector;
 }
 
-MatrixXi ClassToOutput(VectorXi class_vector)
+MatrixXf ClassToOutput(VectorXi class_vector)
 {
     int num_rows = class_vector.rows();
     int num_cols = class_vector.maxCoeff();
-    MatrixXi output_vectors = MatrixXi::Zero(num_rows, num_cols);
+    MatrixXf output_vectors = MatrixXf::Zero(num_rows, num_cols);
 
     for (int i = 0; i < num_rows; i++) {
         int class_val = class_vector(i);
-        output_vectors(i, class_val - 1) = 1;
+        output_vectors(i, class_val - 1) = 1.0f;
     }
 
     return output_vectors;

@@ -14,6 +14,9 @@ using namespace Eigen;
 
 // constants
 const float E = 2.71828182845904523536; // mathematical constant e
+
+const string INPUT_FILENAME = "mushrooms.csv";
+const string INPUT_FILENAME_SMALL = "small-mushrooms.csv";
 const int NUM_MUSHROOM_FEATURES = 23;
 const string FEATURE_SPACES[] =
 {
@@ -44,24 +47,24 @@ const string FEATURE_SPACES[] =
 
 // uncategorized (tbd)
 MatrixXf Sigmoid(MatrixXf X);
-VectorXi OutputToClass(MatrixXi output_vectors);
-MatrixXi ClassToOutput(VectorXi class_vector);
+VectorXi OutputToClass(MatrixXf output_vectors);
+MatrixXf ClassToOutput(VectorXi class_vector);
 
 // parse.hpp
-MatrixXi ParseInputCSV(string csv_filename);
+MatrixXf ParseInputCSV(string csv_filename);
 vector<char> NextLine(ifstream& ifs);
-RowVectorXi OneHotEncode(vector<char> line);
-RowVectorXi EncodeFeature(char feature, string possibilities, RowVectorXi encoding);
+RowVectorXf OneHotEncode(vector<char> line);
+RowVectorXf EncodeFeature(char feature, string possibilities, RowVectorXf encoding);
 
 // data_set.hpp
 class DataSet
 {
-    MatrixXi inputs;
-    VectorXi outputs;
+    MatrixXf inputs;
+    VectorXf outputs;
     int count;
     int bias;
 public:
-    DataSet(MatrixXi, VectorXi);
+    DataSet(MatrixXf, VectorXf);
 };
 
 #endif

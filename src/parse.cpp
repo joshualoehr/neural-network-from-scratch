@@ -1,8 +1,8 @@
 #include "proto.hpp"
 
-MatrixXi ParseInputCSV(string csv_filename)
+MatrixXf ParseInputCSV(string csv_filename)
 {
-    vector<RowVectorXi> samples;
+    vector<RowVectorXf> samples;
     ifstream ifs(csv_filename.c_str(), ifstream::in);
 
     // Consume header
@@ -11,14 +11,16 @@ MatrixXi ParseInputCSV(string csv_filename)
     while (ifs.good())
     {
         vector<char> line = NextLine(ifs);
-        RowVectorXi sample = OneHotEncode(line);
+        if (line.size() == 0)
+            break;
+        RowVectorXf sample = OneHotEncode(line);
         samples.push_back(sample);
     }
     ifs.close();
 
     int rows = samples.size();
     int cols = samples[0].cols();
-    MatrixXi sample_matrix = MatrixXi::Zero(rows, cols);
+    MatrixXf sample_matrix = MatrixXf::Zero(rows, cols);
     for (int r = 0; r < rows; r++) {
         sample_matrix.row(r) = samples[r];
     }
@@ -28,24 +30,22 @@ MatrixXi ParseInputCSV(string csv_filename)
 
 vector<char> NextLine(ifstream& ifs)
 {
-    vector<char> line;
     char c;
-
+    vector<char> line;
     while (ifs.good() && (c = ifs.get()) != '\n' && c != -1)
     {
         if (c != ',')
             line.push_back(c);
     }
-
     return line;
 }
 
 /* This encoding scheme is specific to the mushroom classification problem */
-RowVectorXi OneHotEncode(vector<char> line)
+RowVectorXf OneHotEncode(vector<char> line)
 {
     assert(line.size() == NUM_MUSHROOM_FEATURES && "Unexpected number of features");
 
-    RowVectorXi encoding(0);
+    RowVectorXf encoding(0);
     for (int i = 0; i < NUM_MUSHROOM_FEATURES; i++)
     {
         encoding = EncodeFeature(line[i], FEATURE_SPACES[i], encoding);
@@ -53,19 +53,19 @@ RowVectorXi OneHotEncode(vector<char> line)
     return encoding;
 }
 
-RowVectorXi EncodeFeature(char feature, string possibilities, RowVectorXi encoding)
+RowVectorXf EncodeFeature(char feature, string possibilities, RowVectorXf encoding)
 {
-    RowVectorXi f = RowVectorXi::Zero(possibilities.length());
+    RowVectorXf f = RowVectorXf::Zero(possibilities.length());
     for (uint i = 0; i < possibilities.length(); i++)
     {
         if (feature == possibilities[i])
         {
-            f(i) = 1;
+            f(i) = 1.0f;
             break;
         }
     }
 
-    RowVectorXi new_encoding(encoding.cols() + f.cols());
+    RowVectorXf new_encoding(encoding.cols() + f.cols());
     new_encoding << encoding, f;
     return new_encoding;
 }

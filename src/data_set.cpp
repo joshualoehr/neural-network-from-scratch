@@ -1,6 +1,6 @@
 #include "proto.hpp"
 
-DataSet::DataSet(MatrixXi inputs, VectorXi outputs)
+DataSet::DataSet(MatrixXf inputs, VectorXf outputs)
 {
     this->inputs = inputs;
     this->outputs = outputs;
