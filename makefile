@@ -1,21 +1,25 @@
 CXX=g++
-RM=rm -f
-CPPFLAGS=-g -pthread -Wall -I ./eigen/ 
-LDFLAGS=-g
+CPPFLAGS=-g -Wall -I ./eigen/
 
-SRCS=ann.cpp
-OBJS=$(subst .cpp,.o,$(SRCS))
+TARGET ?= ann
+SRC_DIRS ?= ./src
 
-all: ann
+SRCS := $(shell find $(SRC_DIRS) -name *.cpp)
+OBJS := $(addsuffix .o,$(basename $(SRCS)))
+DEPS := $(OBJS:.o=.d)
 
-ann: ann.cpp
-	$(CXX) $(CPPFLAGS) -o ann ann.cpp
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+INC_FLAGS := $(addprefix -I, $(INC_DIRS))
 
-# ann.o: ann.cpp
-#	$(CXX) $(CPPFLAGS) ann.cpp -o ann.o
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
+
+$(TARGET): $(OBJS)
+	$(CXX) $(LDFLAGS) $(OBJS) -o $@ $(LOADLIBES) $(LDLIBS)
+
+.PHONY: clean
 
 clean:
-	$(RM) $(OBJS)
+	$(RM) $(TARGET) $(OBJS) $(DEPS)
 
-distclean: clean
-	$(RM) ann
+-include $(DEPS)
+
