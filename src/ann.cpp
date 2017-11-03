@@ -1,9 +1,27 @@
 #include "proto.hpp"
 
+struct DataSets
+{
+    int input_count;
+    int output_count;
+    DataSet training_set;
+    DataSet validation_set;
+    DataSet test_set;
+};
+
 int main()
 {
-    cout << ParseInputCSV("mushrooms.csv") << endl;
+    // MatrixXi csv_contents = ParseInputCSV("mushrooms.csv");
+    MatrixXf m = MatrixXf::Random(5,5) + MatrixXf::Constant(5,5,1.0f);
+    cout << m << endl;
+    cout << Sigmoid(m) << endl;
     return 0;
+}
+
+MatrixXf Sigmoid(MatrixXf X)
+{
+    MatrixXf ones = MatrixXf::Constant(X.rows(), X.cols(), 1.0f);
+    return ((X * -1).array().exp().matrix() + ones).cwiseInverse();
 }
 
 VectorXi OutputToClass(MatrixXi output_vectors)

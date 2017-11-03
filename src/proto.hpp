@@ -13,6 +13,7 @@ using namespace std;
 using namespace Eigen;
 
 // constants
+const float E = 2.71828182845904523536; // mathematical constant e
 const int NUM_MUSHROOM_FEATURES = 23;
 const string FEATURE_SPACES[] =
 {
@@ -42,6 +43,7 @@ const string FEATURE_SPACES[] =
 };
 
 // uncategorized (tbd)
+MatrixXf Sigmoid(MatrixXf X);
 VectorXi OutputToClass(MatrixXi output_vectors);
 MatrixXi ClassToOutput(VectorXi class_vector);
 
