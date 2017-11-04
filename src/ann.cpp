@@ -1,5 +1,7 @@
 #include "proto.hpp"
 
+VectorXf DeltaOutput(VectorXf a, VectorXf y);
+float DeltaHidden(float a, VectorXf weights, VectorXf delta_prev);
 MatrixXf BackProp(MatrixXf inputs, MatrixXf weights, VectorXf bias, float lr);
 float SquaredError(VectorXf outputs, VectorXf target_outputs);
 MatrixXf FeedForward_Matrix(MatrixXf inputs, MatrixXf weights, VectorXf bias);
@@ -81,7 +83,27 @@ int main()
     MatrixXf A_2 = Sigmoid(Z_2);
     cout << "A_2: " << endl << A_2 << endl << endl;
 
-    cout << "error: " << SquaredError(A_2, Y) << endl;
+    // cout << "error: " << SquaredError(A_2, Y) << endl;
+    VectorXf delta_2 = DeltaOutput(A_2, Y);
+    cout << delta_2 << endl << endl;
+
+    for (int r = 0; r < A_1.rows(); r++) {
+        VectorXf layer = A_1.row(r).transpose();
+        for (int node = 0; node < layer.rows(); node++)
+        {
+            float a = layer(node);
+            VectorXf weights = W_2.row(node).transpose();
+            VectorXf delta_prevs = delta_2.row(r);
+
+            cout << "Sample #" << r << ", node h(1)_" << node << endl;
+            cout << "a(1)_" << node << ": " << a << endl;
+            cout << "W(2)_" << node << ": " << vdim(weights) << endl << weights << endl;
+            cout << "d(2): " << vdim(delta_prevs) << endl << delta_prevs << endl;
+            cout << "d(1)_" << node << ": " << DeltaHidden(a, weights, delta_prevs) << endl;
+            cout << endl;
+        }
+    }
+
 
     return 0;
 }
@@ -97,6 +119,17 @@ float SquaredError(VectorXf outputs, VectorXf targets)
 {
     assert(outputs.rows() == targets.rows() && "output dimension did not match target dimension");
     return (targets - outputs).array().pow(2).matrix().sum();
+}
+
+VectorXf DeltaOutput(VectorXf a, VectorXf y)
+{
+    VectorXf ones = VectorXf::Ones(a.rows());
+    return a.cwiseProduct(ones - a).cwiseProduct(y - a);
+}
+
+float DeltaHidden(float a, VectorXf weights, VectorXf delta_prevs)
+{
+    return a * (1 - a) * weights.cwiseProduct(delta_prevs).sum();
 }
 
 
