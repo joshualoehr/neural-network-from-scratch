@@ -1,7 +1,7 @@
 #include "proto.hpp"
 
 MatrixXf BackProp(MatrixXf inputs, MatrixXf weights, VectorXf bias, float lr);
-float CalcError(MatrixXf outputs, MatrixXf target_outputs);
+float SquaredError(VectorXf outputs, VectorXf target_outputs);
 MatrixXf FeedForward_Matrix(MatrixXf inputs, MatrixXf weights, VectorXf bias);
 VectorXf FeedForward_Vector(VectorXf inputs, MatrixXf weights, VectorXf bias);
 MatrixXf InitWeights(int rows, int cols, float max_weight);
@@ -81,7 +81,7 @@ int main()
     MatrixXf A_2 = Sigmoid(Z_2);
     cout << "A_2: " << endl << A_2 << endl << endl;
 
-    cout << "error: " << CalcError(A_2, Y) << endl;
+    cout << "error: " << SquaredError(A_2, Y) << endl;
 
     return 0;
 }
@@ -93,21 +93,10 @@ MatrixXf BackProp(MatrixXf inputs, MatrixXf weights, VectorXf bias, float lr)
     return weights;
 }
 
-float CalcError(MatrixXf outputs, MatrixXf target_outputs)
+float SquaredError(VectorXf outputs, VectorXf targets)
 {
-    assert(outputs.rows() == target_outputs.rows() && outputs.cols() == target_outputs.cols()
-            && "Produced output dimensions did not match target dimensions");
-
-    float output, t_output, error = 0.0;
-    for (int r = 0; r < outputs.rows(); r++)
-    {
-        output = outputs(r,0);
-        t_output = target_outputs(r,0);
-        cout << pow(t_output - output, 2) << endl;
-        error += pow(t_output - output, 2);
-    }
-
-    return error;
+    assert(outputs.rows() == targets.rows() && "output dimension did not match target dimension");
+    return (targets - outputs).array().pow(2).matrix().sum();
 }
 
 
