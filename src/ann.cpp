@@ -1,8 +1,11 @@
 #include "proto.hpp"
 
-VectorXf DeltaOutput(VectorXf a, VectorXf y);
-float DeltaHidden(float a, VectorXf weights, VectorXf delta_prev);
-MatrixXf BackProp(MatrixXf inputs, MatrixXf weights, VectorXf bias, float lr);
+vector<MatrixXf> TrainOneEpoch(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, MatrixXf Y, float lr, int num_layers, float& error);
+MatrixXf Evaluate(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, int num_layers);
+MatrixXf UpdateWeights(MatrixXf W, VectorXf A, VectorXf delta, float lr);
+VectorXf DeltaOutput(VectorXf A, MatrixXf Y);
+VectorXf DeltaHidden(VectorXf a, MatrixXf weights, VectorXf delta_prevs);
+vector<MatrixXf> BackProp(vector<MatrixXf> AA, vector<MatrixXf> WW, MatrixXf Y, int num_layers, int num_samples, float lr);
 float SquaredError(VectorXf outputs, VectorXf target_outputs);
 MatrixXf FeedForward_Matrix(MatrixXf inputs, MatrixXf weights, VectorXf bias);
 VectorXf FeedForward_Vector(VectorXf inputs, MatrixXf weights, VectorXf bias);
@@ -40,6 +43,12 @@ int main()
     // cout << csv_contents << endl;
     // cout << endl << endl;
 
+    // Hyperparameters
+    int num_layers = 2;
+    float error_threshold = 0.3;
+    float lr = 0.1;
+    float max_weight_val = 20.0;
+
     MatrixXf X(4,2);
     X(0,0) = 0;
     X(0,1) = 0;
@@ -51,8 +60,6 @@ int main()
     X(3,1) = 1;
     cout << "inputs: " << endl << X << endl << endl;
 
-    int L_0 = X.cols();
-
     MatrixXf Y(4,1);
     Y(0,0) = 0;
     Y(1,0) = 1;
@@ -60,59 +67,140 @@ int main()
     Y(3,0) = 0;
     cout << "target output: " << endl << Y << endl << endl;
 
-    int L_1 = 2;
-    int L_2 = 1;
 
-    MatrixXf W_1 = InitWeights(L_0, L_1, 20);
-    cout << "W_1: " << endl << W_1 << endl << endl;
-    VectorXf b_1 = VectorXf::Ones(L_1);
 
-    MatrixXf Z_1 = FeedForward_Matrix(X, W_1, b_1);
-    cout << "Z_1: " << endl << Z_1 << endl << endl;
+    // Initialization
+    cout << "Initializing... ";
+    vector<int> L(num_layers+1);
+    L[0] = X.cols();
+    L[1] = 2;
+    L[2] = 1;
 
-    MatrixXf A_1 = Sigmoid(Z_1);
-    cout << "A_1: " << endl << A_1 << endl << endl;
-
-    MatrixXf W_2 = InitWeights(L_1, L_2, 20);
-    cout << "W_2: " << endl << W_2 << endl << endl;
-    VectorXf b_2 = VectorXf::Ones(L_2);
-
-    MatrixXf Z_2 = FeedForward_Matrix(A_1, W_2, b_2);
-    cout << "Z_2: " << endl << Z_2 << endl << endl;
-
-    MatrixXf A_2 = Sigmoid(Z_2);
-    cout << "A_2: " << endl << A_2 << endl << endl;
-
-    // cout << "error: " << SquaredError(A_2, Y) << endl;
-    VectorXf delta_2 = DeltaOutput(A_2, Y);
-    cout << delta_2 << endl << endl;
-
-    for (int r = 0; r < A_1.rows(); r++) {
-        VectorXf layer = A_1.row(r).transpose();
-        for (int node = 0; node < layer.rows(); node++)
-        {
-            float a = layer(node);
-            VectorXf weights = W_2.row(node).transpose();
-            VectorXf delta_prevs = delta_2.row(r);
-
-            cout << "Sample #" << r << ", node h(1)_" << node << endl;
-            cout << "a(1)_" << node << ": " << a << endl;
-            cout << "W(2)_" << node << ": " << vdim(weights) << endl << weights << endl;
-            cout << "d(2): " << vdim(delta_prevs) << endl << delta_prevs << endl;
-            cout << "d(1)_" << node << ": " << DeltaHidden(a, weights, delta_prevs) << endl;
-            cout << endl;
-        }
+    vector<MatrixXf> WW(num_layers+1);
+    vector<VectorXf> bb(num_layers+1);
+    for (int l = 1; l <= num_layers; l++)
+    {
+        WW[l] = InitWeights(L[l-1], L[l], max_weight_val);
+        bb[l] = VectorXf::Ones(L[l]);
     }
+    cout << "done\n";
 
+    // Training
+    cout << "Training... \n";
+    int epoch = 0;
+    float error = 20;
+    while (error > error_threshold)
+    {
+        cout << "Epoch #" << (++epoch) << " -- ";
+        WW = TrainOneEpoch(X, WW, bb, Y, lr, num_layers, error);
+
+        if (epoch > 200)
+            break;
+    }
+    cout << "Training done\n";
+
+    // Evaluation
+    cout << "Evaluating... \n";
+    MatrixXf output = Evaluate(X, WW, bb, num_layers);
+    cout << "Output: " << endl << output << endl << endl;
+    cout << "Final Error: " << SquaredError(output, Y);
+
+
+
+
+    // // Forward pass
+    // MatrixXf Z_1 = FeedForward_Matrix(X, W_1, b_1);
+    // MatrixXf A_1 = Sigmoid(Z_1);
+    // MatrixXf Z_2 = FeedForward_Matrix(A_1, W_2, b_2);
+    // MatrixXf A_2 = Sigmoid(Z_2);
+    //
+    // // cout << "error: " << SquaredError(A_2, Y) << endl;
+    //
+    // // Back Propogation
+    // VectorXf delta_2 = DeltaOutput(A_2, Y);
+    // MatrixXf delta_1(X.rows(), A_1.cols());
+    // for (int r = 0; r < X.rows(); r++) {
+    //     VectorXf A_1_r = A_1.row(r).transpose();
+    //     VectorXf delta_2_r = delta_2.row(r).transpose();
+    //     delta_1.row(r) = DeltaHidden(A_1_r, W_2, delta_2_r);
+    //
+    //     // (Purely) Stochastic Gradient Descent
+    //     W_1 = UpdateWeights(W_1, delta_1.row(r).transpose(), lr);
+    //     W_2 = UpdateWeights(W_2, delta_2.row(r).transpose(), lr);
+    // }
 
     return 0;
 }
 
-MatrixXf BackProp(MatrixXf inputs, MatrixXf weights, VectorXf bias, float lr)
+vector<MatrixXf> TrainOneEpoch(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, MatrixXf Y, float lr, int num_layers, float& error)
 {
+    cout << "(Forward pass (" << num_layers << " layers)... ";
+    vector<MatrixXf> ZZ(num_layers+1);
+    vector<MatrixXf> AA(num_layers+1);
+    AA[0] = X;
+
+    for (int i = 1; i < num_layers+1; i++)
+    {
+        ZZ[i] = FeedForward_Matrix(AA[i-1], WW[i], bb[i]);
+        AA[i] = Sigmoid(ZZ[i]);
+    }
+    cout << "done) ";
+
+    cout << "(BackProp... ";
+    WW = BackProp(AA, WW, Y, num_layers, X.rows(), lr);
+    cout << "done) ";
+
+    error = SquaredError(AA[num_layers], Y);
+    cout << "Error: " << error << endl;
+
+    return WW;
+}
+
+MatrixXf Evaluate(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, int num_layers)
+{
+    vector<MatrixXf> ZZ(num_layers+1);
+    vector<MatrixXf> AA(num_layers+1);
+    AA[0] = X;
+
+    for (int i = 1; i < num_layers+1; i++)
+    {
+        ZZ[i] = FeedForward_Matrix(AA[i-1], WW[i], bb[i]);
+        AA[i] = Sigmoid(ZZ[i]);
+    }
+
+    MatrixXf A_final = AA[num_layers];
+    return A_final;
+}
 
 
-    return weights;
+vector<MatrixXf> BackProp(vector<MatrixXf> AA, vector<MatrixXf> WW, MatrixXf Y, int num_layers, int num_samples, float lr)
+{
+    VectorXf deltas_output = DeltaOutput(AA[num_layers], Y);
+
+    for (int s = 0; s < num_samples; s++)
+    {
+        vector<VectorXf> deltas(num_layers+1);
+        deltas[num_layers] = deltas_output.row(s);
+
+        for (int i = num_layers; i > 0; i--)
+        {
+            VectorXf A_s = AA[i-1].row(s).transpose();
+            VectorXf delta = deltas[i];
+            MatrixXf W = WW[i];
+
+            deltas[i-1] = DeltaHidden(A_s, W, delta);
+        }
+
+        // (Purely) Stochastic Gradient Descent - batch size = 1
+        for (int j = num_layers; j > 0; j--)
+        {
+            VectorXf A_s = AA[j-1].row(s).transpose();
+            VectorXf delta = deltas[j];
+            WW[j] = UpdateWeights(WW[j], A_s, delta, lr);
+        }
+    }
+
+    return WW;
 }
 
 float SquaredError(VectorXf outputs, VectorXf targets)
@@ -121,15 +209,29 @@ float SquaredError(VectorXf outputs, VectorXf targets)
     return (targets - outputs).array().pow(2).matrix().sum();
 }
 
-VectorXf DeltaOutput(VectorXf a, VectorXf y)
+MatrixXf UpdateWeights(MatrixXf W, VectorXf A, VectorXf delta, float lr)
 {
-    VectorXf ones = VectorXf::Ones(a.rows());
-    return a.cwiseProduct(ones - a).cwiseProduct(y - a);
+    return W + lr * A * delta.transpose();
+
+    // for (int r = 0; r < W_new.rows(); r++)
+    // {
+    //     float delta = deltas(r);
+    //     W_new.row(r) = W_new.row(r) + lr * RowVectorXf::Constant(W_new.cols(), delta);
+    // }
+    //
+    // return W_new.transpose();
 }
 
-float DeltaHidden(float a, VectorXf weights, VectorXf delta_prevs)
+VectorXf DeltaOutput(VectorXf A, MatrixXf Y)
 {
-    return a * (1 - a) * weights.cwiseProduct(delta_prevs).sum();
+    VectorXf ones = VectorXf::Ones(A.rows());
+    return A.cwiseProduct(ones - A).cwiseProduct(Y - A);
+}
+
+VectorXf DeltaHidden(VectorXf A, MatrixXf W, VectorXf delta)
+{
+    VectorXf ones = VectorXf::Ones(A.rows());
+    return A.cwiseProduct(ones - A).cwiseProduct(W * delta);
 }
 
 
