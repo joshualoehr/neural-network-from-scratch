@@ -7,6 +7,7 @@ VectorXf DeltaOutput(VectorXf A, MatrixXf Y);
 VectorXf DeltaHidden(VectorXf a, MatrixXf weights, VectorXf delta_prevs);
 vector<MatrixXf> BackProp(vector<MatrixXf> AA, vector<MatrixXf> WW, MatrixXf Y, int num_layers, int num_samples, float lr);
 float SquaredError(VectorXf outputs, VectorXf target_outputs);
+float BinaryCrossEntropy(VectorXf A, VectorXf Y);
 MatrixXf FeedForward_Matrix(MatrixXf inputs, MatrixXf weights, VectorXf bias);
 VectorXf FeedForward_Vector(VectorXf inputs, MatrixXf weights, VectorXf bias);
 MatrixXf InitWeights(int rows, int cols, float max_weight);
@@ -45,7 +46,7 @@ int main()
 
     // Hyperparameters
     int num_layers = 2;
-    float error_threshold = 0.3;
+    float error_threshold = 0.5;
     float lr = 0.1;
     float max_weight_val = 20.0;
 
@@ -94,7 +95,7 @@ int main()
         cout << "Epoch #" << (++epoch) << " -- ";
         WW = TrainOneEpoch(X, WW, bb, Y, lr, num_layers, error);
 
-        if (epoch > 200)
+        if (epoch > 1000)
             break;
     }
     cout << "Training done\n";
@@ -103,7 +104,7 @@ int main()
     cout << "Evaluating... \n";
     MatrixXf output = Evaluate(X, WW, bb, num_layers);
     cout << "Output: " << endl << output << endl << endl;
-    cout << "Final Error: " << SquaredError(output, Y);
+    cout << "Final Error: " << BinaryCrossEntropy(output, Y);
 
 
 
@@ -150,7 +151,7 @@ vector<MatrixXf> TrainOneEpoch(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf>
     WW = BackProp(AA, WW, Y, num_layers, X.rows(), lr);
     cout << "done) ";
 
-    error = SquaredError(AA[num_layers], Y);
+    error = BinaryCrossEntropy(AA[num_layers], Y);
     cout << "Error: " << error << endl;
 
     return WW;
@@ -207,6 +208,13 @@ float SquaredError(VectorXf outputs, VectorXf targets)
 {
     assert(outputs.rows() == targets.rows() && "output dimension did not match target dimension");
     return (targets - outputs).array().pow(2).matrix().sum();
+}
+
+float BinaryCrossEntropy(VectorXf A, VectorXf Y)
+{
+    VectorXf ones = VectorXf::Ones(Y.rows());
+    VectorXf loss = (-1 * Y).cwiseProduct(A.array().log().matrix()) - (ones - Y).cwiseProduct((ones - A).array().log().matrix());
+    return loss.sum() / loss.rows();
 }
 
 MatrixXf UpdateWeights(MatrixXf W, VectorXf A, VectorXf delta, float lr)
