@@ -61,9 +61,9 @@ int main()
 
     // Hyperparameters
     int num_layers = 2;
-    float error_threshold = 0.5;
-    int max_epochs = 10000;
-    float lr = 0.1;
+    float error_threshold = 0.1;
+    int max_epochs = 100000;
+    float lr = 0.2;
     float max_weight_val = 1.0;
 
     MatrixXf X(4,2);
