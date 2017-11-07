@@ -12,6 +12,7 @@ float BinaryCrossEntropy(VectorXf A, VectorXf Y);
 MatrixXf FeedForward_Matrix(MatrixXf inputs, MatrixXf weights, VectorXf bias);
 VectorXf FeedForward_Vector(VectorXf inputs, MatrixXf weights, VectorXf bias);
 MatrixXf InitWeights(int rows, int cols, float max_weight);
+MatrixXf Sigmoid(MatrixXf X);
 
 struct DataSets
 {
@@ -52,46 +53,132 @@ string vstr(string name, VectorXf v)
 
 int main()
 {
-    // Reset the random generator seed
-    srand((unsigned int) time(0));
+    MatrixXf X;
+    VectorXf Y;
 
-    // MatrixXf csv_contents = ParseInputCSV(INPUT_FILENAME_SMALL);
-    // cout << csv_contents << endl;
-    // cout << endl << endl;
+    ParseInputCSV(INPUT_FILENAME, X, Y);
+    cout << mstr("X", X) << endl;
+    cout << vstr("Y", Y) << endl;
 
     // Hyperparameters
-    int num_layers = 2;
     float error_threshold = 0.1;
     int max_epochs = 100000;
     float lr = 0.2;
     float max_weight_val = 1.0;
 
-    MatrixXf X(4,2);
-    X(0,0) = 0;
-    X(0,1) = 0;
-    X(1,0) = 0;
-    X(1,1) = 1;
-    X(2,0) = 1;
-    X(2,1) = 0;
-    X(3,0) = 1;
-    X(3,1) = 1;
-    cout << "inputs: " << endl << X << endl << endl;
-
-    MatrixXf Y(4,1);
-    Y(0,0) = 0;
-    Y(1,0) = 1;
-    Y(2,0) = 1;
-    Y(3,0) = 0;
-    cout << "target output: " << endl << Y << endl << endl;
-
-
-
-    // Initialization
+    // Network Topology
+    int num_layers = 5;
     vector<int> L(num_layers+1);
     L[0] = X.cols();
-    L[1] = 2;
-    L[2] = 1;
+    L[1] = 90;
+    L[2] = 60;
+    L[3] = 30;
+    L[4] = 10;
+    L[num_layers] = 1; // final layer should always be of dim 1
 
+    // Initialization
+    vector<MatrixXf> WW(num_layers+1);
+    vector<VectorXf> bb(num_layers+1);
+    for (int l = 1; l <= num_layers; l++)
+    {
+        WW[l] = InitWeights(L[l-1], L[l], max_weight_val);
+        bb[l] = VectorXf::Ones(L[l]);
+    }
+
+    // Training
+    float error = 20;
+    for (int epoch = 0; epoch < max_epochs; epoch++)
+    {
+        // cout << "Epoch #" << (++epoch) << " -- ";
+        TrainOneEpoch(X, WW, bb, Y, lr, num_layers, error);
+        if (error <= error_threshold)
+        {
+            cout << "Converged at epoch " << epoch << endl << endl;
+            break;
+        }
+    }
+
+    if (error <= error_threshold)
+    {
+        // Evaluation
+        MatrixXf output = Evaluate(X, WW, bb, num_layers);
+        cout << mstr("Final Layer", output) << endl;
+        cout << mstr("Final Output", ConvertOutputLayer(output)) << endl;
+        cout << "Final Error: " << BinaryCrossEntropy(ConvertOutputLayer(output), Y) << endl << endl;
+
+        // for (int i = 1; i <= num_layers; i++)
+        // {
+        //     cout << "<<< Layer " << i << " >>>\n\n";
+        //     cout << mstr("W", WW[i]) << endl;
+        //     cout << vstr("b", bb[i]) << endl << endl;
+        // }
+    }
+    else
+    {
+        cout << "Did not converge after " << max_epochs << " epochs :(\n";
+    }
+
+    return 0;
+}
+
+int DoXOR()
+{
+    // Reset the random generator seed
+    srand((unsigned int) time(0));
+
+    MatrixXf X(8,3);
+    X(0,0) = 0;
+    X(0,1) = 0;
+    X(0,2) = 0;
+    X(1,0) = 0;
+    X(1,1) = 0;
+    X(1,2) = 1;
+    X(2,0) = 0;
+    X(2,1) = 1;
+    X(2,2) = 0;
+    X(3,0) = 0;
+    X(3,1) = 1;
+    X(3,2) = 1;
+    X(4,0) = 1;
+    X(4,1) = 0;
+    X(4,2) = 0;
+    X(5,0) = 1;
+    X(5,1) = 0;
+    X(5,2) = 1;
+    X(6,0) = 1;
+    X(6,1) = 1;
+    X(6,2) = 0;
+    X(7,0) = 1;
+    X(7,1) = 1;
+    X(7,2) = 1;
+    cout << "inputs: " << endl << X << endl << endl;
+
+    MatrixXf Y(8,1);
+    Y(0,0) = 0;
+    Y(1,0) = 0;
+    Y(2,0) = 1;
+    Y(3,0) = 1;
+    Y(4,0) = 1;
+    Y(5,0) = 1;
+    Y(6,0) = 0;
+    Y(7,0) = 0;
+    cout << "target output: " << endl << Y << endl << endl;
+
+    // Hyperparameters
+    float error_threshold = 0.1;
+    int max_epochs = 100000;
+    float lr = 0.2;
+    float max_weight_val = 1.0;
+
+    // Network Topology
+    int num_layers = 3;
+    vector<int> L(num_layers+1);
+    L[0] = X.cols();
+    L[1] = 3;
+    L[2] = 2;
+    L[3] = 1;
+
+    // Initialization
     vector<MatrixXf> WW(num_layers+1);
     vector<VectorXf> bb(num_layers+1);
     for (int l = 1; l <= num_layers; l++)
