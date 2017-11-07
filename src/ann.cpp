@@ -2,6 +2,7 @@
 
 vector<MatrixXf> TrainOneEpoch(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, MatrixXf Y, float lr, int num_layers, float& error);
 MatrixXf Evaluate(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, int num_layers);
+VectorXf ConvertOutputLayer(VectorXf A);
 MatrixXf UpdateWeights(MatrixXf W, VectorXf A, VectorXf delta, float lr);
 VectorXf DeltaOutput(VectorXf A, MatrixXf Y, int index);
 VectorXf DeltaHidden(VectorXf a, MatrixXf weights, VectorXf delta_prevs);
@@ -61,7 +62,7 @@ int main()
     int num_layers = 2;
     float error_threshold = 0.5;
     float lr = 0.1;
-    float max_weight_val = 20.0;
+    float max_weight_val = 1.0;
 
     MatrixXf X(4,2);
     X(0,0) = 0;
@@ -108,7 +109,7 @@ int main()
         cout << "Epoch #" << (++epoch) << " -- ";
         WW = TrainOneEpoch(X, WW, bb, Y, lr, num_layers, error);
 
-        if (epoch > 100)
+        if (epoch > 1000)
             break;
     }
     cout << "Training done\n";
@@ -116,8 +117,9 @@ int main()
     // Evaluation
     cout << "Evaluating... \n";
     MatrixXf output = Evaluate(X, WW, bb, num_layers);
-    cout << mstr("Output", output) << endl;
-    cout << "Final Error: " << BinaryCrossEntropy(output, Y);
+    cout << mstr("Final Layer", output) << endl;
+    cout << mstr("Final Output", ConvertOutputLayer(output)) << endl;
+    cout << "Final Error: " << BinaryCrossEntropy(ConvertOutputLayer(output), Y) << endl;
 
     return 0;
 }
@@ -156,33 +158,21 @@ vector<MatrixXf> TrainOneEpoch(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf>
     WW = BackProp(AA, WW, Y, num_layers, X.rows(), lr);
     cout << "done) ";
 
-    error = BinaryCrossEntropy(AA[num_layers], Y);
-    cout << "Error: " << error << endl;
+    cout << "Error: " << BinaryCrossEntropy(AA[num_layers], Y) << endl;
+    error = BinaryCrossEntropy(ConvertOutputLayer(AA[num_layers]), Y);
 
     return WW;
 }
 
-MatrixXf Evaluate(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, int num_layers)
-{
-    vector<MatrixXf> ZZ(num_layers+1);
-    vector<MatrixXf> AA(num_layers+1);
-    AA[0] = X;
-
-    for (int i = 1; i < num_layers+1; i++)
-    {
-        ZZ[i] = FeedForward_Matrix(AA[i-1], WW[i], bb[i]);
-        AA[i] = Sigmoid(ZZ[i]);
-    }
-
-    MatrixXf A_final = AA[num_layers];
-    return A_final;
-}
-
-
 vector<MatrixXf> BackProp(vector<MatrixXf> AA, vector<MatrixXf> WW, MatrixXf Y, int num_layers, int num_samples, float lr)
 {
+    VectorXf output = ConvertOutputLayer(AA[num_layers]);
+
     for (int s = 0; s < num_samples; s++)
     {
+        if (output(s) == Y(s))
+            continue;
+
         vector<VectorXf> deltas(num_layers);
         deltas.push_back(DeltaOutput(AA[num_layers], Y, s));
 
@@ -207,7 +197,30 @@ vector<MatrixXf> BackProp(vector<MatrixXf> AA, vector<MatrixXf> WW, MatrixXf Y, 
     return WW;
 }
 
+VectorXf ConvertOutputLayer(VectorXf A)
+{
+    for (int i = 0; i < A.rows(); i++)
+    {
+        A(i) = (A(i) >= 0.5) ? 1 : 0;
+    }
+    return A;
+}
 
+MatrixXf Evaluate(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, int num_layers)
+{
+    vector<MatrixXf> ZZ(num_layers+1);
+    vector<MatrixXf> AA(num_layers+1);
+    AA[0] = X;
+
+    for (int i = 1; i < num_layers+1; i++)
+    {
+        ZZ[i] = FeedForward_Matrix(AA[i-1], WW[i], bb[i]);
+        AA[i] = Sigmoid(ZZ[i]);
+    }
+
+    MatrixXf A_final = AA[num_layers];
+    return A_final;
+}
 
 MatrixXf UpdateWeights(MatrixXf W, VectorXf A, VectorXf delta, float lr)
 {
@@ -236,7 +249,6 @@ VectorXf DeltaHidden(VectorXf A, MatrixXf W, VectorXf delta)
     return A.cwiseProduct(ones - A).cwiseProduct(W * delta);
 }
 
-
 MatrixXf InitWeights(int rows, int cols, float max_weight)
 {
     return MatrixXf::Random(rows, cols) * max_weight;
@@ -249,52 +261,13 @@ MatrixXf FeedForward_Matrix(MatrixXf inputs, MatrixXf weights, VectorXf bias)
     {
         VectorXf x = inputs.row(r).transpose();
         VectorXf z = weights.transpose() * x + bias;
-        //VectorXf z = FeedForward_Vector(x, weights, bias);
         Z.row(r) = z.transpose();
     }
     return Z;
-}
-
-VectorXf FeedForward_Vector(VectorXf inputs, MatrixXf weights, VectorXf bias)
-{
-    return weights.transpose() * inputs + bias;
 }
 
 MatrixXf Sigmoid(MatrixXf X)
 {
     MatrixXf ones = MatrixXf::Constant(X.rows(), X.cols(), 1.0f);
     return ((X * -1).array().exp().matrix() + ones).cwiseInverse();
-}
-
-VectorXi OutputToClass(MatrixXf output_vectors)
-{
-    int num_rows = output_vectors.rows();
-    int num_cols = output_vectors.cols();
-    VectorXi class_vector(num_rows);
-
-    for (int i = 0; i < num_rows; i++)
-    {
-        for (int j = 0; j < num_cols; j++) {
-            if (output_vectors(i, j) == 1) {
-                class_vector(i) = j + 1;
-                break;
-            }
-        }
-    }
-
-    return class_vector;
-}
-
-MatrixXf ClassToOutput(VectorXi class_vector)
-{
-    int num_rows = class_vector.rows();
-    int num_cols = class_vector.maxCoeff();
-    MatrixXf output_vectors = MatrixXf::Zero(num_rows, num_cols);
-
-    for (int i = 0; i < num_rows; i++) {
-        int class_val = class_vector(i);
-        output_vectors(i, class_val - 1) = 1.0f;
-    }
-
-    return output_vectors;
 }
