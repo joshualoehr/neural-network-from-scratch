@@ -1,12 +1,13 @@
 #include "proto.hpp"
 
-vector<MatrixXf> TrainOneEpoch(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, MatrixXf Y, float lr, int num_layers, float& error);
+void TrainOneEpoch(MatrixXf X, vector<MatrixXf>& WW, vector<VectorXf>& bb, MatrixXf Y, float lr, int num_layers, float& error);
 MatrixXf Evaluate(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, int num_layers);
 VectorXf ConvertOutputLayer(VectorXf A);
 MatrixXf UpdateWeights(MatrixXf W, VectorXf A, VectorXf delta, float lr);
+VectorXf UpdateBiases(VectorXf b, VectorXf delta, float lr);
 VectorXf DeltaOutput(VectorXf A, MatrixXf Y, int index);
 VectorXf DeltaHidden(VectorXf a, MatrixXf weights, VectorXf delta_prevs);
-vector<MatrixXf> BackProp(vector<MatrixXf> AA, vector<MatrixXf> WW, MatrixXf Y, int num_layers, int num_samples, float lr);
+void BackProp(vector<MatrixXf> AA, vector<MatrixXf>& WW, vector<VectorXf>& bb, MatrixXf Y, int num_layers, int num_samples, float lr);
 float BinaryCrossEntropy(VectorXf A, VectorXf Y);
 MatrixXf FeedForward_Matrix(MatrixXf inputs, MatrixXf weights, VectorXf bias);
 VectorXf FeedForward_Vector(VectorXf inputs, MatrixXf weights, VectorXf bias);
@@ -61,6 +62,7 @@ int main()
     // Hyperparameters
     int num_layers = 2;
     float error_threshold = 0.5;
+    int max_epochs = 10000;
     float lr = 0.1;
     float max_weight_val = 1.0;
 
@@ -85,7 +87,6 @@ int main()
 
 
     // Initialization
-    cout << "Initializing... ";
     vector<int> L(num_layers+1);
     L[0] = X.cols();
     L[1] = 2;
@@ -98,28 +99,39 @@ int main()
         WW[l] = InitWeights(L[l-1], L[l], max_weight_val);
         bb[l] = VectorXf::Ones(L[l]);
     }
-    cout << "done\n";
 
     // Training
-    cout << "Training... \n";
-    int epoch = 0;
     float error = 20;
-    while (error > error_threshold)
+    for (int epoch = 0; epoch < max_epochs; epoch++)
     {
-        cout << "Epoch #" << (++epoch) << " -- ";
-        WW = TrainOneEpoch(X, WW, bb, Y, lr, num_layers, error);
-
-        if (epoch > 1000)
+        // cout << "Epoch #" << (++epoch) << " -- ";
+        TrainOneEpoch(X, WW, bb, Y, lr, num_layers, error);
+        if (error <= error_threshold)
+        {
+            cout << "Converged at epoch " << epoch << endl << endl;
             break;
+        }
     }
-    cout << "Training done\n";
 
-    // Evaluation
-    cout << "Evaluating... \n";
-    MatrixXf output = Evaluate(X, WW, bb, num_layers);
-    cout << mstr("Final Layer", output) << endl;
-    cout << mstr("Final Output", ConvertOutputLayer(output)) << endl;
-    cout << "Final Error: " << BinaryCrossEntropy(ConvertOutputLayer(output), Y) << endl;
+    if (error <= error_threshold)
+    {
+        // Evaluation
+        MatrixXf output = Evaluate(X, WW, bb, num_layers);
+        cout << mstr("Final Layer", output) << endl;
+        cout << mstr("Final Output", ConvertOutputLayer(output)) << endl;
+        cout << "Final Error: " << BinaryCrossEntropy(ConvertOutputLayer(output), Y) << endl << endl;
+
+        for (int i = 1; i <= num_layers; i++)
+        {
+            cout << "<<< Layer " << i << " >>>\n\n";
+            cout << mstr("W", WW[i]) << endl;
+            cout << vstr("b", bb[i]) << endl << endl;
+        }
+    }
+    else
+    {
+        cout << "Did not converge after " << max_epochs << " epochs :(\n";
+    }
 
     return 0;
 }
@@ -140,9 +152,8 @@ float BinaryCrossEntropy(VectorXf A, VectorXf Y)
     return loss.sum() / loss.rows();
 }
 
-vector<MatrixXf> TrainOneEpoch(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, MatrixXf Y, float lr, int num_layers, float& error)
+void TrainOneEpoch(MatrixXf X, vector<MatrixXf>& WW, vector<VectorXf>& bb, MatrixXf Y, float lr, int num_layers, float& error)
 {
-    cout << "(Forward pass (" << num_layers << " layers)... ";
     vector<MatrixXf> ZZ(num_layers+1);
     vector<MatrixXf> AA(num_layers+1);
     AA[0] = X;
@@ -152,19 +163,14 @@ vector<MatrixXf> TrainOneEpoch(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf>
         ZZ[i] = FeedForward_Matrix(AA[i-1], WW[i], bb[i]);
         AA[i] = Sigmoid(ZZ[i]);
     }
-    cout << "done) ";
 
-    cout << "(BackProp... ";
-    WW = BackProp(AA, WW, Y, num_layers, X.rows(), lr);
-    cout << "done) ";
+    BackProp(AA, WW, bb, Y, num_layers, X.rows(), lr);
 
-    cout << "Error: " << BinaryCrossEntropy(AA[num_layers], Y) << endl;
+    // cout << "Error: " << BinaryCrossEntropy(AA[num_layers], Y) << endl;
     error = BinaryCrossEntropy(ConvertOutputLayer(AA[num_layers]), Y);
-
-    return WW;
 }
 
-vector<MatrixXf> BackProp(vector<MatrixXf> AA, vector<MatrixXf> WW, MatrixXf Y, int num_layers, int num_samples, float lr)
+void BackProp(vector<MatrixXf> AA, vector<MatrixXf>& WW, vector<VectorXf>& bb, MatrixXf Y, int num_layers, int num_samples, float lr)
 {
     VectorXf output = ConvertOutputLayer(AA[num_layers]);
 
@@ -191,10 +197,9 @@ vector<MatrixXf> BackProp(vector<MatrixXf> AA, vector<MatrixXf> WW, MatrixXf Y, 
             VectorXf A_s = AA[j-1].row(s).transpose();
             VectorXf delta = deltas[j];
             WW[j] = UpdateWeights(WW[j], A_s, delta, lr);
+            bb[j] = UpdateBiases(bb[j], delta, lr);
         }
     }
-
-    return WW;
 }
 
 VectorXf ConvertOutputLayer(VectorXf A)
@@ -225,14 +230,11 @@ MatrixXf Evaluate(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, int num_
 MatrixXf UpdateWeights(MatrixXf W, VectorXf A, VectorXf delta, float lr)
 {
     return W + lr * A * delta.transpose();
+}
 
-    // for (int r = 0; r < W_new.rows(); r++)
-    // {
-    //     float delta = deltas(r);
-    //     W_new.row(r) = W_new.row(r) + lr * RowVectorXf::Constant(W_new.cols(), delta);
-    // }
-    //
-    // return W_new.transpose();
+VectorXf UpdateBiases(VectorXf b, VectorXf delta, float lr)
+{
+    return b + lr * delta;
 }
 
 VectorXf DeltaOutput(VectorXf A, MatrixXf Y, int index)
