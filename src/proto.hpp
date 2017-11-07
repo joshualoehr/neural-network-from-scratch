@@ -46,14 +46,13 @@ const string FEATURE_SPACES[] =
 };
 
 // uncategorized (tbd)
-MatrixXf Sigmoid(MatrixXf X);
 VectorXi OutputToClass(MatrixXf output_vectors);
 MatrixXf ClassToOutput(VectorXi class_vector);
 
 // parse.hpp
-MatrixXf ParseInputCSV(string csv_filename);
+void ParseInputCSV(string csv_filename, MatrixXf& samples, VectorXf& labels);
 vector<char> NextLine(ifstream& ifs);
-RowVectorXf OneHotEncode(vector<char> line);
+void OneHotEncode(vector<char> line, float& label, RowVectorXf& encoding);
 RowVectorXf EncodeFeature(char feature, string possibilities, RowVectorXf encoding);
 
 // data_set.hpp

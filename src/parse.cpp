@@ -1,31 +1,40 @@
 #include "proto.hpp"
 
-MatrixXf ParseInputCSV(string csv_filename)
+void ParseInputCSV(string csv_filename, MatrixXf& samples, VectorXf& labels)
 {
-    vector<RowVectorXf> samples;
     ifstream ifs(csv_filename.c_str(), ifstream::in);
 
     // Consume header
     while (ifs.good() && ifs.get() != '\n');
 
+    int row = 0;
     while (ifs.good())
     {
         vector<char> line = NextLine(ifs);
         if (line.size() == 0)
             break;
-        RowVectorXf sample = OneHotEncode(line);
-        samples.push_back(sample);
+
+        float label;
+        RowVectorXf sample(0);
+        OneHotEncode(line, label, sample);
+
+        samples.conservativeResize(samples.rows()+1, sample.cols());
+        labels.conservativeResize(labels.rows()+1);
+
+        samples.row(row) = sample;
+        labels(row) = label;
+        row++;
     }
     ifs.close();
 
-    int rows = samples.size();
-    int cols = samples[0].cols();
-    MatrixXf sample_matrix = MatrixXf::Zero(rows, cols);
-    for (int r = 0; r < rows; r++) {
-        sample_matrix.row(r) = samples[r];
-    }
-
-    return sample_matrix;
+    // int rows = samples.size();
+    // int cols = samples[0].cols();
+    // MatrixXf sample_matrix = MatrixXf::Zero(rows, cols);
+    // for (int r = 0; r < rows; r++) {
+    //     sample_matrix.row(r) = samples[r];
+    // }
+    //
+    // return sample_matrix;
 }
 
 vector<char> NextLine(ifstream& ifs)
@@ -41,16 +50,16 @@ vector<char> NextLine(ifstream& ifs)
 }
 
 /* This encoding scheme is specific to the mushroom classification problem */
-RowVectorXf OneHotEncode(vector<char> line)
+void OneHotEncode(vector<char> line, float& label, RowVectorXf& encoding)
 {
     assert(line.size() == NUM_MUSHROOM_FEATURES && "Unexpected number of features");
 
-    RowVectorXf encoding(0);
-    for (int i = 0; i < NUM_MUSHROOM_FEATURES; i++)
+    label = (line[0] == 'p') ? 0 : 1;
+
+    for (int i = 1; i < NUM_MUSHROOM_FEATURES; i++)
     {
         encoding = EncodeFeature(line[i], FEATURE_SPACES[i], encoding);
     }
-    return encoding;
 }
 
 RowVectorXf EncodeFeature(char feature, string possibilities, RowVectorXf encoding)
