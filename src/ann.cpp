@@ -3,10 +3,9 @@
 vector<MatrixXf> TrainOneEpoch(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, MatrixXf Y, float lr, int num_layers, float& error);
 MatrixXf Evaluate(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, int num_layers);
 MatrixXf UpdateWeights(MatrixXf W, VectorXf A, VectorXf delta, float lr);
-VectorXf DeltaOutput(VectorXf A, MatrixXf Y);
+VectorXf DeltaOutput(VectorXf A, MatrixXf Y, int index);
 VectorXf DeltaHidden(VectorXf a, MatrixXf weights, VectorXf delta_prevs);
 vector<MatrixXf> BackProp(vector<MatrixXf> AA, vector<MatrixXf> WW, MatrixXf Y, int num_layers, int num_samples, float lr);
-float SquaredError(VectorXf outputs, VectorXf target_outputs);
 float BinaryCrossEntropy(VectorXf A, VectorXf Y);
 MatrixXf FeedForward_Matrix(MatrixXf inputs, MatrixXf weights, VectorXf bias);
 VectorXf FeedForward_Vector(VectorXf inputs, MatrixXf weights, VectorXf bias);
@@ -32,6 +31,20 @@ string vdim(VectorXf v)
 {
     stringstream ss;
     ss << v.rows() << "x" << v.cols();
+    return ss.str();
+}
+
+string mstr(string name, MatrixXf m)
+{
+    stringstream ss;
+    ss << name << " (" << mdim(m) << "): \n" << m << "\n";
+    return ss.str();
+}
+
+string vstr(string name, VectorXf v)
+{
+    stringstream ss;
+    ss << name << " (" << vdim(v) << "): \n" << v << "\n";
     return ss.str();
 }
 
@@ -95,7 +108,7 @@ int main()
         cout << "Epoch #" << (++epoch) << " -- ";
         WW = TrainOneEpoch(X, WW, bb, Y, lr, num_layers, error);
 
-        if (epoch > 1000)
+        if (epoch > 100)
             break;
     }
     cout << "Training done\n";
@@ -103,34 +116,26 @@ int main()
     // Evaluation
     cout << "Evaluating... \n";
     MatrixXf output = Evaluate(X, WW, bb, num_layers);
-    cout << "Output: " << endl << output << endl << endl;
+    cout << mstr("Output", output) << endl;
     cout << "Final Error: " << BinaryCrossEntropy(output, Y);
 
-
-
-
-    // // Forward pass
-    // MatrixXf Z_1 = FeedForward_Matrix(X, W_1, b_1);
-    // MatrixXf A_1 = Sigmoid(Z_1);
-    // MatrixXf Z_2 = FeedForward_Matrix(A_1, W_2, b_2);
-    // MatrixXf A_2 = Sigmoid(Z_2);
-    //
-    // // cout << "error: " << SquaredError(A_2, Y) << endl;
-    //
-    // // Back Propogation
-    // VectorXf delta_2 = DeltaOutput(A_2, Y);
-    // MatrixXf delta_1(X.rows(), A_1.cols());
-    // for (int r = 0; r < X.rows(); r++) {
-    //     VectorXf A_1_r = A_1.row(r).transpose();
-    //     VectorXf delta_2_r = delta_2.row(r).transpose();
-    //     delta_1.row(r) = DeltaHidden(A_1_r, W_2, delta_2_r);
-    //
-    //     // (Purely) Stochastic Gradient Descent
-    //     W_1 = UpdateWeights(W_1, delta_1.row(r).transpose(), lr);
-    //     W_2 = UpdateWeights(W_2, delta_2.row(r).transpose(), lr);
-    // }
-
     return 0;
+}
+
+float BinaryCrossEntropy(VectorXf A, VectorXf Y)
+{
+    // Prevent NaN's by avoiding computing log(0)
+    for (int i = 0; i < A.rows(); i++)
+    {
+        if (A(i) == 1)
+            A(i) -= 0.000001;
+        else if (A(i) == 0)
+            A(i) += 0.000001;
+    }
+
+    VectorXf ones = VectorXf::Ones(Y.rows());
+    VectorXf loss = (-1 * Y).cwiseProduct(A.array().log().matrix()) - (ones - Y).cwiseProduct((ones - A).array().log().matrix());
+    return loss.sum() / loss.rows();
 }
 
 vector<MatrixXf> TrainOneEpoch(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, MatrixXf Y, float lr, int num_layers, float& error)
@@ -176,12 +181,10 @@ MatrixXf Evaluate(MatrixXf X, vector<MatrixXf> WW, vector<VectorXf> bb, int num_
 
 vector<MatrixXf> BackProp(vector<MatrixXf> AA, vector<MatrixXf> WW, MatrixXf Y, int num_layers, int num_samples, float lr)
 {
-    VectorXf deltas_output = DeltaOutput(AA[num_layers], Y);
-
     for (int s = 0; s < num_samples; s++)
     {
-        vector<VectorXf> deltas(num_layers+1);
-        deltas[num_layers] = deltas_output.row(s);
+        vector<VectorXf> deltas(num_layers);
+        deltas.push_back(DeltaOutput(AA[num_layers], Y, s));
 
         for (int i = num_layers; i > 0; i--)
         {
@@ -204,18 +207,7 @@ vector<MatrixXf> BackProp(vector<MatrixXf> AA, vector<MatrixXf> WW, MatrixXf Y, 
     return WW;
 }
 
-float SquaredError(VectorXf outputs, VectorXf targets)
-{
-    assert(outputs.rows() == targets.rows() && "output dimension did not match target dimension");
-    return (targets - outputs).array().pow(2).matrix().sum();
-}
 
-float BinaryCrossEntropy(VectorXf A, VectorXf Y)
-{
-    VectorXf ones = VectorXf::Ones(Y.rows());
-    VectorXf loss = (-1 * Y).cwiseProduct(A.array().log().matrix()) - (ones - Y).cwiseProduct((ones - A).array().log().matrix());
-    return loss.sum() / loss.rows();
-}
 
 MatrixXf UpdateWeights(MatrixXf W, VectorXf A, VectorXf delta, float lr)
 {
@@ -230,10 +222,12 @@ MatrixXf UpdateWeights(MatrixXf W, VectorXf A, VectorXf delta, float lr)
     // return W_new.transpose();
 }
 
-VectorXf DeltaOutput(VectorXf A, MatrixXf Y)
+VectorXf DeltaOutput(VectorXf A, MatrixXf Y, int index)
 {
-    VectorXf ones = VectorXf::Ones(A.rows());
-    return A.cwiseProduct(ones - A).cwiseProduct(Y - A);
+    float a = A(index), y = Y(index);
+    VectorXf delta(1);
+    delta << a * (1 - a) * (y - a);
+    return delta;
 }
 
 VectorXf DeltaHidden(VectorXf A, MatrixXf W, VectorXf delta)
@@ -254,7 +248,8 @@ MatrixXf FeedForward_Matrix(MatrixXf inputs, MatrixXf weights, VectorXf bias)
     for (int r = 0; r < inputs.rows(); r++)
     {
         VectorXf x = inputs.row(r).transpose();
-        VectorXf z = FeedForward_Vector(x, weights, bias);
+        VectorXf z = weights.transpose() * x + bias;
+        //VectorXf z = FeedForward_Vector(x, weights, bias);
         Z.row(r) = z.transpose();
     }
     return Z;
