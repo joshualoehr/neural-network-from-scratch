@@ -22,6 +22,7 @@ $(TARGET): $(OBJS)
 
 clean:
 	$(RM) $(TARGET) $(OBJS) $(DEPS)
+	$(RM) weights*.txt biases*.txt
 
 -include $(DEPS)
 

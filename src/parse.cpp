@@ -1,7 +1,6 @@
 #include "proto.hpp"
 
-void ParseInputCSV(string csv_filename, MatrixXf& samples, VectorXf& labels)
-{
+void ParseInputCSV(string csv_filename, MatrixXf& samples, VectorXf& labels) {
     ifstream ifs(csv_filename.c_str(), ifstream::in);
 
     // Consume header
@@ -26,19 +25,9 @@ void ParseInputCSV(string csv_filename, MatrixXf& samples, VectorXf& labels)
         row++;
     }
     ifs.close();
-
-    // int rows = samples.size();
-    // int cols = samples[0].cols();
-    // MatrixXf sample_matrix = MatrixXf::Zero(rows, cols);
-    // for (int r = 0; r < rows; r++) {
-    //     sample_matrix.row(r) = samples[r];
-    // }
-    //
-    // return sample_matrix;
 }
 
-vector<char> NextLine(ifstream& ifs)
-{
+vector<char> NextLine(ifstream& ifs) {
     char c;
     vector<char> line;
     while (ifs.good() && (c = ifs.get()) != '\n' && c != -1)
@@ -50,8 +39,7 @@ vector<char> NextLine(ifstream& ifs)
 }
 
 /* This encoding scheme is specific to the mushroom classification problem */
-void OneHotEncode(vector<char> line, float& label, RowVectorXf& encoding)
-{
+void OneHotEncode(vector<char> line, float& label, RowVectorXf& encoding) {
     assert(line.size() == NUM_MUSHROOM_FEATURES && "Unexpected number of features");
 
     label = (line[0] == 'p') ? 0 : 1;
@@ -62,8 +50,7 @@ void OneHotEncode(vector<char> line, float& label, RowVectorXf& encoding)
     }
 }
 
-RowVectorXf EncodeFeature(char feature, string possibilities, RowVectorXf encoding)
-{
+RowVectorXf EncodeFeature(char feature, string possibilities, RowVectorXf encoding) {
     RowVectorXf f = RowVectorXf::Zero(possibilities.length());
     for (uint i = 0; i < possibilities.length(); i++)
     {

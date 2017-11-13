@@ -13,10 +13,11 @@ using namespace std;
 using namespace Eigen;
 
 // constants
+const string USAGE = "Usage: ./ann [SEED]";
 const float E = 2.71828182845904523536; // mathematical constant e
 
-const string INPUT_FILENAME = "mushrooms.csv";
-const string INPUT_FILENAME_SMALL = "small-mushrooms.csv";
+const string INPUT_FILENAME_TRAIN = "mushrooms-train.csv";
+const string INPUT_FILENAME_TEST = "mushrooms-test.csv";
 const int NUM_MUSHROOM_FEATURES = 23;
 const string FEATURE_SPACES[] =
 {
@@ -45,25 +46,10 @@ const string FEATURE_SPACES[] =
     "glmpuwd" // habitat
 };
 
-// uncategorized (tbd)
-VectorXi OutputToClass(MatrixXf output_vectors);
-MatrixXf ClassToOutput(VectorXi class_vector);
-
 // parse.hpp
 void ParseInputCSV(string csv_filename, MatrixXf& samples, VectorXf& labels);
 vector<char> NextLine(ifstream& ifs);
 void OneHotEncode(vector<char> line, float& label, RowVectorXf& encoding);
 RowVectorXf EncodeFeature(char feature, string possibilities, RowVectorXf encoding);
-
-// data_set.hpp
-class DataSet
-{
-    MatrixXf inputs;
-    VectorXf outputs;
-    int count;
-    int bias;
-public:
-    DataSet(MatrixXf, VectorXf);
-};
 
 #endif
