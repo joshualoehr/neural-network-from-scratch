@@ -1,0 +1,426 @@
+Script started on Sun 12 Nov 2017 10:30:47 PM PST
+]0;loehrj@cf414-01: ~/cs402/assign2loehrj@cf414-01:~/cs402/assign2$ make
+g++  -g -Wall -I ./eigen/  -c -o src/ann.o src/ann.cpp
+g++  -g -Wall -I ./eigen/  -c -o src/utils.o src/utils.cpp
+g++  -g -Wall -I ./eigen/  -c -o src/parse.o src/parse.cpp
+g++  -g -Wall -I ./eigen/  -c -o src/feedforward.o src/feedforward.cpp
+g++  -g -Wall -I ./eigen/  -c -o src/eval.o src/eval.cpp
+g++  -g -Wall -I ./eigen/  -c -o src/save.o src/save.cpp
+g++  -g -Wall -I ./eigen/  -c -o src/train.o src/train.cpp
+g++  ./src/ann.o ./src/utils.o ./src/parse.o ./src/feedforward.o ./src/eval.o ./src/save.o ./src/train.o -o ann  
+]0;loehrj@cf414-01: ~/cs402/assign2loehrj@cf414-01:~/cs402/assign2$ time ./ann 1510181022
+Initializing random seed to: 1510181022
+
+<<< Hyperparameters >>>
+Learning Rate:                0.001
+Initial Weight Range:         [-0.8, 0.8]
+Error Convergence Threshold:  0.02
+Maximum Training Epochs:      1000
+Epochs Before Divergence:     50
+
+<<< Loading Data >>>
+Sample Features: X_train (7312x126), X_test (812x126)
+Sample Outputs:  Y_train (7312x1), Y_test (812x1)
+
+<<< Topology >>>
+Hidden Layers: 2
+
+Input Layer:    126 nodes
+Hidden Layer1:  64 nodes
+Hidden Layer2:  1 nodes
+
+<<< Initializing Weights & Biases >>>
+W[1]: 126x64
+W[2]: 64x1
+B[1]: 64x1
+B[2]: 1x1
+
+Weights saved to: weights0.txt
+Biases saved to: biases0.txt
+<<< Initial Evaluation >>>
+Initial Error -- BCE: 0.992521, Error: 6.97764, Correct: 49.494%
+
+<<< Training >>>
+Epoch #0 -- Accuracy: 51.7369%
+Epoch #1 -- Accuracy: 51.7369%
+Epoch #2 -- Accuracy: 51.7369%
+Epoch #3 -- Accuracy: 51.7369%
+Epoch #4 -- Accuracy: 51.7369%
+Epoch #5 -- Accuracy: 51.7369%
+Epoch #6 -- Accuracy: 51.7369%
+Epoch #7 -- Accuracy: 51.7369%
+Epoch #8 -- Accuracy: 51.7369%
+Epoch #9 -- Accuracy: 51.7369%
+Epoch #10 -- Accuracy: 51.7369%
+Epoch #11 -- Accuracy: 51.7369%
+Epoch #12 -- Accuracy: 51.7369%
+Epoch #13 -- Accuracy: 51.7369%
+Epoch #14 -- Accuracy: 51.7369%
+Epoch #15 -- Accuracy: 51.7369%
+Epoch #16 -- Accuracy: 51.7369%
+Epoch #17 -- Accuracy: 51.7369%
+Epoch #18 -- Accuracy: 51.7369%
+Epoch #19 -- Accuracy: 51.7369%
+Epoch #20 -- Accuracy: 51.7369%
+Epoch #21 -- Accuracy: 51.7369%
+Epoch #22 -- Accuracy: 51.7369%
+Epoch #23 -- Accuracy: 51.7369%
+Epoch #24 -- Accuracy: 51.7369%
+Epoch #25 -- Accuracy: 51.7369%
+Epoch #26 -- Accuracy: 51.7369%
+Epoch #27 -- Accuracy: 51.7369%
+Epoch #28 -- Accuracy: 51.7369%
+Epoch #29 -- Accuracy: 51.7369%
+Epoch #30 -- Accuracy: 51.7369%
+Epoch #31 -- Accuracy: 51.7369%
+Epoch #32 -- Accuracy: 51.7369%
+Epoch #33 -- Accuracy: 51.7369%
+Epoch #34 -- Accuracy: 51.7369%
+Epoch #35 -- Accuracy: 51.7369%
+Epoch #36 -- Accuracy: 51.7369%
+Epoch #37 -- Accuracy: 51.7369%
+Epoch #38 -- Accuracy: 51.7369%
+Epoch #39 -- Accuracy: 51.7369%
+Epoch #40 -- Accuracy: 51.7369%
+Epoch #41 -- Accuracy: 51.7369%
+Epoch #42 -- Accuracy: 51.7369%
+Epoch #43 -- Accuracy: 51.7369%
+Epoch #44 -- Accuracy: 51.7369%
+Epoch #45 -- Accuracy: 51.7369%
+Epoch #46 -- Accuracy: 51.7369%
+Epoch #47 -- Accuracy: 51.7369%
+Epoch #48 -- Accuracy: 51.7369%
+Epoch #49 -- Accuracy: 51.7369%
+Epoch #50 -- Accuracy: 51.7369%
+Epoch #51 -- Accuracy: 51.7369%
+Epoch #52 -- Accuracy: 51.7369%
+Epoch #53 -- Accuracy: 51.7369%
+Epoch #54 -- Accuracy: 51.7369%
+Epoch #55 -- Accuracy: 51.7369%
+Epoch #56 -- Accuracy: 51.7369%
+Epoch #57 -- Accuracy: 51.7369%
+Epoch #58 -- Accuracy: 51.7369%
+Epoch #59 -- Accuracy: 51.7369%
+Epoch #60 -- Accuracy: 51.7369%
+Epoch #61 -- Accuracy: 51.7369%
+Epoch #62 -- Accuracy: 51.7369%
+Epoch #63 -- Accuracy: 51.7369%
+Epoch #64 -- Accuracy: 51.7369%
+Epoch #65 -- Accuracy: 51.7369%
+Epoch #66 -- Accuracy: 51.7369%
+Epoch #67 -- Accuracy: 51.7369%
+Epoch #68 -- Accuracy: 51.7369%
+Epoch #69 -- Accuracy: 51.7369%
+Epoch #70 -- Accuracy: 51.7369%
+Epoch #71 -- Accuracy: 51.7369%
+Epoch #72 -- Accuracy: 51.7369%
+Epoch #73 -- Accuracy: 51.7369%
+Epoch #74 -- Accuracy: 51.7369%
+Epoch #75 -- Accuracy: 51.7369%
+Epoch #76 -- Accuracy: 51.7369%
+Epoch #77 -- Accuracy: 51.7369%
+Epoch #78 -- Accuracy: 51.7369%
+Epoch #79 -- Accuracy: 51.7369%
+Epoch #80 -- Accuracy: 51.7369%
+Epoch #81 -- Accuracy: 51.7369%
+Epoch #82 -- Accuracy: 51.7369%
+Epoch #83 -- Accuracy: 51.7369%
+Epoch #84 -- Accuracy: 51.7369%
+Epoch #85 -- Accuracy: 51.7369%
+Epoch #86 -- Accuracy: 51.7369%
+Epoch #87 -- Accuracy: 51.7369%
+Epoch #88 -- Accuracy: 51.7369%
+Epoch #89 -- Accuracy: 51.7369%
+Epoch #90 -- Accuracy: 51.7369%
+Epoch #91 -- Accuracy: 51.7369%
+Epoch #92 -- Accuracy: 51.7369%
+Epoch #93 -- Accuracy: 51.7369%
+Epoch #94 -- Accuracy: 51.7369%
+Epoch #95 -- Accuracy: 51.7369%
+Epoch #96 -- Accuracy: 51.7369%
+Epoch #97 -- Accuracy: 51.7369%
+Epoch #98 -- Accuracy: 51.7369%
+Epoch #99 -- Accuracy: 51.7369%
+Epoch #100 -- Accuracy: 51.7369%
+Epoch #101 -- Accuracy: 51.7369%
+Epoch #102 -- Accuracy: 51.7369%
+Epoch #103 -- Accuracy: 51.7369%
+Epoch #104 -- Accuracy: 51.7369%
+Epoch #105 -- Accuracy: 51.7369%
+Epoch #106 -- Accuracy: 51.7369%
+Epoch #107 -- Accuracy: 51.7369%
+Epoch #108 -- Accuracy: 51.7369%
+Epoch #109 -- Accuracy: 51.7369%
+Epoch #110 -- Accuracy: 51.7369%
+Epoch #111 -- Accuracy: 51.7369%
+Epoch #112 -- Accuracy: 51.7369%
+Epoch #113 -- Accuracy: 51.7369%
+Epoch #114 -- Accuracy: 51.7369%
+Epoch #115 -- Accuracy: 51.7369%
+Epoch #116 -- Accuracy: 51.7369%
+Epoch #117 -- Accuracy: 51.7369%
+Epoch #118 -- Accuracy: 51.7369%
+Epoch #119 -- Accuracy: 51.7369%
+Epoch #120 -- Accuracy: 51.7369%
+Epoch #121 -- Accuracy: 72.3605%
+Epoch #122 -- Accuracy: 48.2631%
+Epoch #123 -- Accuracy: 80.8944%
+Epoch #124 -- Accuracy: 80.8671%
+Epoch #125 -- Accuracy: 84.4365%
+
+**Saving** -- BCE: 0.384642, Error: 2.14867, Correct: 84.4365%
+Weights saved to: weights1.txt
+Biases saved to: biases1.txt
+
+Epoch #126 -- Accuracy: 72.0733%
+Epoch #127 -- Accuracy: 51.7369%
+Epoch #128 -- Accuracy: 53.4464%
+Epoch #129 -- Accuracy: 48.2631%
+Epoch #130 -- Accuracy: 51.0531%
+Epoch #131 -- Accuracy: 51.9967%
+Epoch #132 -- Accuracy: 85.4486%
+Epoch #133 -- Accuracy: 85.4212%
+
+**Saving** -- BCE: 0.300277, Error: 2.01353, Correct: 85.4212%
+Weights saved to: weights2.txt
+Biases saved to: biases2.txt
+
+Epoch #134 -- Accuracy: 87.7462%
+Epoch #135 -- Accuracy: 82.3578%
+Epoch #136 -- Accuracy: 85.3939%
+Epoch #137 -- Accuracy: 88.4984%
+Epoch #138 -- Accuracy: 83.5613%
+Epoch #139 -- Accuracy: 87.2402%
+Epoch #140 -- Accuracy: 89.0454%
+Epoch #141 -- Accuracy: 83.4519%
+Epoch #142 -- Accuracy: 87.2265%
+Epoch #143 -- Accuracy: 89.401%
+Epoch #144 -- Accuracy: 83.4792%
+Epoch #145 -- Accuracy: 87.7598%
+Epoch #146 -- Accuracy: 90.2626%
+Epoch #147 -- Accuracy: 84.7648%
+Epoch #148 -- Accuracy: 88.6488%
+Epoch #149 -- Accuracy: 93.7637%
+Epoch #150 -- Accuracy: 94.0919%
+
+**Saving** -- BCE: 0.185254, Error: 0.816096, Correct: 94.0919%
+Weights saved to: weights3.txt
+Biases saved to: biases3.txt
+
+Epoch #151 -- Accuracy: 94.4065%
+Epoch #152 -- Accuracy: 94.5979%
+
+**Saving** -- BCE: 0.176725, Error: 0.746189, Correct: 94.5979%
+Weights saved to: weights4.txt
+Biases saved to: biases4.txt
+
+Epoch #153 -- Accuracy: 95.1997%
+Epoch #154 -- Accuracy: 95.5826%
+
+**Saving** -- BCE: 0.164119, Error: 0.610142, Correct: 95.5826%
+Weights saved to: weights5.txt
+Biases saved to: biases5.txt
+
+Epoch #155 -- Accuracy: 96.2254%
+Epoch #156 -- Accuracy: 96.6083%
+
+**Saving** -- BCE: 0.14839, Error: 0.468413, Correct: 96.6083%
+Weights saved to: weights6.txt
+Biases saved to: biases6.txt
+
+Epoch #157 -- Accuracy: 96.7724%
+Epoch #158 -- Accuracy: 96.9912%
+Epoch #159 -- Accuracy: 96.9776%
+Epoch #160 -- Accuracy: 97.128%
+Epoch #161 -- Accuracy: 97.1554%
+Epoch #162 -- Accuracy: 97.2921%
+Epoch #163 -- Accuracy: 97.3605%
+Epoch #164 -- Accuracy: 97.4015%
+Epoch #165 -- Accuracy: 97.4836%
+Epoch #166 -- Accuracy: 97.5383%
+Epoch #167 -- Accuracy: 97.5793%
+Epoch #168 -- Accuracy: 97.5793%
+Epoch #169 -- Accuracy: 97.5246%
+Epoch #170 -- Accuracy: 97.6067%
+Epoch #171 -- Accuracy: 97.6477%
+Epoch #172 -- Accuracy: 97.6477%
+Epoch #173 -- Accuracy: 97.6887%
+Epoch #174 -- Accuracy: 97.6614%
+Epoch #175 -- Accuracy: 97.7434%
+Epoch #176 -- Accuracy: 97.6614%
+Epoch #177 -- Accuracy: 97.8528%
+Epoch #178 -- Accuracy: 97.6887%
+Epoch #179 -- Accuracy: 97.9759%
+Epoch #180 -- Accuracy: 97.8255%
+Epoch #181 -- Accuracy: 98.0853%
+Epoch #182 -- Accuracy: 97.8255%
+Epoch #183 -- Accuracy: 98.2084%
+Epoch #184 -- Accuracy: 97.9075%
+Epoch #185 -- Accuracy: 98.3178%
+Epoch #186 -- Accuracy: 98.1537%
+Epoch #187 -- Accuracy: 98.4272%
+Epoch #188 -- Accuracy: 98.2631%
+Epoch #189 -- Accuracy: 98.4409%
+Epoch #190 -- Accuracy: 98.3589%
+Epoch #191 -- Accuracy: 98.4956%
+Epoch #192 -- Accuracy: 98.4136%
+Epoch #193 -- Accuracy: 98.564%
+Epoch #194 -- Accuracy: 98.5503%
+Epoch #195 -- Accuracy: 98.6461%
+Epoch #196 -- Accuracy: 98.7008%
+Epoch #197 -- Accuracy: 98.7281%
+Epoch #198 -- Accuracy: 98.7555%
+Epoch #199 -- Accuracy: 98.8102%
+Epoch #200 -- Accuracy: 98.8102%
+Epoch #201 -- Accuracy: 98.7965%
+Epoch #202 -- Accuracy: 98.8102%
+Epoch #203 -- Accuracy: 98.8512%
+Epoch #204 -- Accuracy: 98.8922%
+Epoch #205 -- Accuracy: 98.8922%
+Epoch #206 -- Accuracy: 98.9196%
+Epoch #207 -- Accuracy: 98.9059%
+Epoch #208 -- Accuracy: 98.9469%
+Epoch #209 -- Accuracy: 98.9469%
+Epoch #210 -- Accuracy: 98.9333%
+Epoch #211 -- Accuracy: 98.9469%
+Epoch #212 -- Accuracy: 98.9606%
+Epoch #213 -- Accuracy: 99.0016%
+Epoch #214 -- Accuracy: 99.0427%
+Epoch #215 -- Accuracy: 99.0427%
+
+**Saving** -- BCE: 0.133197, Error: 0.132199, Correct: 99.0427%
+Weights saved to: weights7.txt
+Biases saved to: biases7.txt
+
+Epoch #216 -- Accuracy: 99.07%
+Epoch #217 -- Accuracy: 99.07%
+Epoch #218 -- Accuracy: 99.0837%
+Epoch #219 -- Accuracy: 99.0837%
+Epoch #220 -- Accuracy: 99.1247%
+Epoch #221 -- Accuracy: 99.1521%
+Epoch #222 -- Accuracy: 99.1384%
+Epoch #223 -- Accuracy: 99.1521%
+Epoch #224 -- Accuracy: 99.1931%
+Epoch #225 -- Accuracy: 99.2068%
+Epoch #226 -- Accuracy: 99.2068%
+Epoch #227 -- Accuracy: 99.2205%
+Epoch #228 -- Accuracy: 99.2478%
+Epoch #229 -- Accuracy: 99.2341%
+Epoch #230 -- Accuracy: 99.3025%
+Epoch #231 -- Accuracy: 99.2888%
+Epoch #232 -- Accuracy: 99.2888%
+Epoch #233 -- Accuracy: 99.3299%
+Epoch #234 -- Accuracy: 99.3025%
+Epoch #235 -- Accuracy: 99.3299%
+Epoch #236 -- Accuracy: 99.3709%
+Epoch #237 -- Accuracy: 99.3572%
+Epoch #238 -- Accuracy: 99.4119%
+Epoch #239 -- Accuracy: 99.3846%
+Epoch #240 -- Accuracy: 99.453%
+Epoch #241 -- Accuracy: 99.453%
+Epoch #242 -- Accuracy: 99.4666%
+Epoch #243 -- Accuracy: 99.4666%
+Epoch #244 -- Accuracy: 99.4803%
+Epoch #245 -- Accuracy: 99.4803%
+Epoch #246 -- Accuracy: 99.494%
+Epoch #247 -- Accuracy: 99.5077%
+Epoch #248 -- Accuracy: 99.5077%
+Epoch #249 -- Accuracy: 99.5213%
+Epoch #250 -- Accuracy: 99.535%
+Epoch #251 -- Accuracy: 99.5077%
+Epoch #252 -- Accuracy: 99.576%
+Epoch #253 -- Accuracy: 99.5077%
+Epoch #254 -- Accuracy: 99.576%
+Epoch #255 -- Accuracy: 99.535%
+Epoch #256 -- Accuracy: 99.5897%
+Epoch #257 -- Accuracy: 99.6034%
+Epoch #258 -- Accuracy: 99.576%
+Epoch #259 -- Accuracy: 99.6034%
+Epoch #260 -- Accuracy: 99.5897%
+Epoch #261 -- Accuracy: 99.6034%
+Epoch #262 -- Accuracy: 99.5897%
+Epoch #263 -- Accuracy: 99.5897%
+Epoch #264 -- Accuracy: 99.6034%
+Epoch #265 -- Accuracy: 99.5897%
+Epoch #266 -- Accuracy: 99.5897%
+Epoch #267 -- Accuracy: 99.6171%
+Epoch #268 -- Accuracy: 99.6171%
+Epoch #269 -- Accuracy: 99.6171%
+Epoch #270 -- Accuracy: 99.6171%
+Epoch #271 -- Accuracy: 99.6171%
+Epoch #272 -- Accuracy: 99.6171%
+Epoch #273 -- Accuracy: 99.6444%
+Epoch #274 -- Accuracy: 99.6444%
+Epoch #275 -- Accuracy: 99.6444%
+Epoch #276 -- Accuracy: 99.6444%
+Epoch #277 -- Accuracy: 99.6444%
+Epoch #278 -- Accuracy: 99.6444%
+Epoch #279 -- Accuracy: 99.6581%
+Epoch #280 -- Accuracy: 99.6581%
+Epoch #281 -- Accuracy: 99.6581%
+Epoch #282 -- Accuracy: 99.6581%
+Epoch #283 -- Accuracy: 99.6581%
+Epoch #284 -- Accuracy: 99.6854%
+Epoch #285 -- Accuracy: 99.6581%
+Epoch #286 -- Accuracy: 99.6854%
+Epoch #287 -- Accuracy: 99.6581%
+Epoch #288 -- Accuracy: 99.6991%
+Epoch #289 -- Accuracy: 99.6581%
+Epoch #290 -- Accuracy: 99.6854%
+Epoch #291 -- Accuracy: 99.6718%
+Epoch #292 -- Accuracy: 99.6718%
+Epoch #293 -- Accuracy: 99.6991%
+Epoch #294 -- Accuracy: 99.6854%
+Epoch #295 -- Accuracy: 99.7128%
+Epoch #296 -- Accuracy: 99.6854%
+Epoch #297 -- Accuracy: 99.7128%
+Epoch #298 -- Accuracy: 99.6854%
+Epoch #299 -- Accuracy: 99.7265%
+Epoch #300 -- Accuracy: 99.6991%
+Epoch #301 -- Accuracy: 99.7265%
+Epoch #302 -- Accuracy: 99.6991%
+Epoch #303 -- Accuracy: 99.7402%
+Epoch #304 -- Accuracy: 99.7402%
+Epoch #305 -- Accuracy: 99.7265%
+Epoch #306 -- Accuracy: 99.7402%
+Epoch #307 -- Accuracy: 99.7265%
+Epoch #308 -- Accuracy: 99.7402%
+Epoch #309 -- Accuracy: 99.7402%
+Epoch #310 -- Accuracy: 99.7402%
+Epoch #311 -- Accuracy: 99.7538%
+Epoch #312 -- Accuracy: 99.7128%
+Epoch #313 -- Accuracy: 99.7675%
+Epoch #314 -- Accuracy: 99.7675%
+Epoch #315 -- Accuracy: 99.7265%
+Epoch #316 -- Accuracy: 99.7675%
+Epoch #317 -- Accuracy: 99.7812%
+Epoch #318 -- Accuracy: 99.7675%
+Epoch #319 -- Accuracy: 99.7538%
+Epoch #320 -- Accuracy: 99.7812%
+Epoch #321 -- Accuracy: 99.7812%
+Epoch #322 -- Accuracy: 99.7812%
+Epoch #323 -- Accuracy: 99.7812%
+Epoch #324 -- Accuracy: 99.7949%
+Epoch #325 -- Accuracy: 99.7538%
+Epoch #326 -- Accuracy: 99.7949%
+Epoch #327 -- Accuracy: 99.7538%
+Epoch #328 -- Accuracy: 99.8085%
+
+Saving Final Weights...
+Weights saved to: weights8.txt
+Biases saved to: biases8.txt
+
+Training converged at epoch 328
+
+<<< Final Evaluation >>>
+Final Training Error -- BCE: 0.128037, Error: 0.0264441, Correct: 99.8085%
+Final Test Error -- BCE: 0.130531, Error: 0.102021, Correct: 99.2611%
+
+
+real	10m14.278s
+user	10m10.464s
+sys	0m3.744s
+]0;loehrj@cf414-01: ~/cs402/assign2loehrj@cf414-01:~/cs402/assign2$ exit
+exit
+
+Script done on Sun 12 Nov 2017 10:41:59 PM PST

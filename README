@@ -7,10 +7,9 @@ https://archive.ics.uci.edu/ml/datasets/Mushroom
 -------------------------------------------------------------------------------
 
 To run:
-	1. cd src/
-	2. make
-	3. ./ann
+	1. make
+	2. ./ann
 
 Optionally, run with a fixed seed:
-	3. ./ann [SEED]
+	2. ./ann [SEED]
 
