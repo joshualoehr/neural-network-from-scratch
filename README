@@ -4,6 +4,8 @@ Author: Josh Loehr
 This project uses the UCI ML Repository Mushroom Data Set, available here:
 https://archive.ics.uci.edu/ml/datasets/Mushroom
 
+For a much more detailed description, please see loehrj-writeup.pdf.
+
 -------------------------------------------------------------------------------
 
 To run:
